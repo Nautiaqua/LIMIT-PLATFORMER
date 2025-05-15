@@ -39,12 +39,17 @@ class Game:
                 if event.type == pygame.QUIT: # quits game, duh
                     pygame.quit()
                     sys.exit()
-                
+
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_a: # d is left, a is right
                         self.movement[0] = True
                     if event.key == pygame.K_d:
                         self.movement[1] = True
+                    if event.key == pygame.K_SPACE:
+                        if (self.player.canJump == True):
+                            self.player.velocity[1] = -3
+                            self.player.canJump = False
+
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_a:
                         self.movement[0] = False
@@ -53,7 +58,6 @@ class Game:
 
             scaled = pygame.transform.scale(self.surface, (960, 864))
             self.screen.blit(scaled, (0, 0))
-
 
             pygame.display.update()
             self.clock.tick(60) # sets frame rate to 60 fps

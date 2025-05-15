@@ -9,6 +9,7 @@ class PhysicsEntity:
         self.collisions = {'up': False, 'down': False, 'right': False, 'left': False}
         self.velocity = [0,0] # updated every frame based on acceleration
         self.speed = 1.5
+        self.canJump = True
 
         print(self.size)
         print(self.game.assets['player'].get_size())
@@ -49,6 +50,9 @@ class PhysicsEntity:
 
         if self.collisions['down'] or self.collisions['up']:
             self.velocity[1] = 0
+
+        if self.collisions['down']:
+            self.canJump = True
 
     def render(self, surfc): #surfc is surface
         surfc.blit(self.game.assets['player'], self.pos)
