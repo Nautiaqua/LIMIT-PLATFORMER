@@ -23,9 +23,7 @@ class Game:
             'player': load_image('player/player_base.png')
         }
 
-        print(self.assets)
-
-        self.player = PhysicsEntity(self, 'player', (50, 50), (50, 50))
+        self.player = PhysicsEntity(self, 'player', (50, 50), (15, 15))
         self.tilemap = Tilemap(self, tile_size = 16) # for the sake of clarity.
 
     def run(self):
@@ -34,7 +32,7 @@ class Game:
 
             self.tilemap.render(self.surface) #renders tilemap BEFORE player
 
-            self.player.update((self.movement[0] - self.movement[1], 0))  #moves player left and right
+            self.player.update(self.tilemap, (self.movement[1] - self.movement[0], 0))  #moves player left and right
             self.player.render(self.surface) #renders player
 
             for event in pygame.event.get():
@@ -43,18 +41,19 @@ class Game:
                     sys.exit()
                 
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_d: # d is left, a is right
+                    if event.key == pygame.K_a: # d is left, a is right
                         self.movement[0] = True
-                    if event.key == pygame.K_a:
+                    if event.key == pygame.K_d:
                         self.movement[1] = True
                 if event.type == pygame.KEYUP:
-                    if event.key == pygame.K_d:
-                        self.movement[0] = False
                     if event.key == pygame.K_a:
+                        self.movement[0] = False
+                    if event.key == pygame.K_d:
                         self.movement[1] = False
 
             scaled = pygame.transform.scale(self.surface, (960, 864))
             self.screen.blit(scaled, (0, 0))
+
 
             pygame.display.update()
             self.clock.tick(60) # sets frame rate to 60 fps
