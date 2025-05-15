@@ -13,7 +13,7 @@ class Game:
         self.screen = pygame.display.set_mode((960, 864)) # Initialize screen.
         self.surface = pygame.Surface((320, 288))
         self.clock = pygame.time.Clock() #initialize clocc
-        
+                
 
         self.movement = [False, False]
 
