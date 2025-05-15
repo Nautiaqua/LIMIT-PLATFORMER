@@ -10,8 +10,8 @@ class Game:
         pygame.init()
 
         pygame.display.set_caption("Limited Jump Platformer") # title for the window
-        self.screen = pygame.display.set_mode((640, 576)) # Initialize screen.
-        self.surface = pygame.Surface((160, 144))
+        self.screen = pygame.display.set_mode((960, 864)) # Initialize screen.
+        self.surface = pygame.Surface((320, 288))
         self.clock = pygame.time.Clock() #initialize clocc
         
 
@@ -53,10 +53,10 @@ class Game:
                     if event.key == pygame.K_a:
                         self.movement[1] = False
 
-            scaled = pygame.transform.scale(self.surface, (640, 576))
+            scaled = pygame.transform.scale(self.surface, (960, 864))
             self.screen.blit(scaled, (0, 0))
 
             pygame.display.update()
-            self.clock.tick(120) # sets frame rate to 60 fps
+            self.clock.tick(60) # sets frame rate to 60 fps
 
 Game().run()

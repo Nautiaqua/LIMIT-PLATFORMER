@@ -7,9 +7,12 @@ class PhysicsEntity:
         self.pos = list(pos) # pos is position
         self.size = size
         self.velocity = [0,0] # updated every frame based on acceleration
+        self.speed = 1.5
 
     def update(self, movement=(0, 0)): 
-        frame_movement = (movement[0] + self.velocity[0], movement[1] + self.velocity [1])
+        frame_movement = (movement[0] * self.speed + self.velocity[0], movement[1] + self.velocity [1])
+
+        self.velocity[1] = min(5, self.velocity[1] + 0.1)
 
         self.pos[0] += frame_movement[0] # updates x position
         self.pos[1] += frame_movement[1] # updates y position
