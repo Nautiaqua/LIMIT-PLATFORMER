@@ -1,6 +1,9 @@
 import sys
 import pygame
 
+from scripts.utils import load_image
+from scripts.entities import PhysicsEntity
+
 class Game:
     def __init__(self):
         pygame.init()
@@ -10,16 +13,20 @@ class Game:
         self.surface = pygame.Surface((160, 144))
         self.clock = pygame.time.Clock() # Initialize clock.
         
-        self.playersprite = pygame.image.load('data/sprites/player_sprite_idle.png')
-        self.player_pos = [64, 64] # determines player position
-        self.movement = [False, False]
-        
 
-        self.collission_area = pygame.Rect(80, 50, 20, 50)
+        self.movement = [False, False]
+        self.assets = {
+            'player' : load_image('player/player_sprite_idle.png')
+        }
+
+        self.player = PhysicsEntity(self, 'player', (50, 50), (50, 50))
 
     def run(self):
         while True:
-            self.player_pos[0] += (self.movement[0] - self.movement[1]) * 2 # move player left or right, the numberdeterminesthemovement speed
+            self.surface.fill((174, 166, 145)) # fill the screen with the chosen color.
+
+            self.player.update((self.movement[0] - self.movement[1], 0))  #moves player left and right
+            self.player.render(self.surface) #renders player
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT: # quits game, duh
@@ -36,18 +43,6 @@ class Game:
                         self.movement[0] = False
                     if event.key == pygame.K_a:
                         self.movement[1] = False
-
-                
-
-            self.surface.fill((174, 166, 145)) # fill the screen with the chosen color.
-            
-            playercoll = pygame.Rect(self.player_pos[0], self.player_pos[1], self.playersprite.get_width(), self.playersprite.get_height()) # player collision
-            if playercoll.colliderect(self.collission_area):
-                pygame.draw.rect(self.surface,(0, 100, 255), self.collission_area)
-            else:
-                pygame.draw.rect(self.surface,(0, 50, 255), self.collission_area)
-
-            self.surface.blit(self.playersprite, self.player_pos)
 
             scaled = pygame.transform.scale(self.surface, (640, 576))
             self.screen.blit(scaled, (0, 0))
