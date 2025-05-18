@@ -1,7 +1,7 @@
 import pygame
 
 class PhysicsEntity:
-    def __init__(self, game, e_type, pos, size):
+    def __init__(self, game, e_type, jumpamount, pos, size):
         self.game = game
         self.type = e_type
         self.pos = list(pos) # pos is position
@@ -10,6 +10,7 @@ class PhysicsEntity:
         self.velocity = [0,0] # updated every frame based on acceleration
         self.speed = 1.5
         self.canJump = True
+        self.JumpsLeft = jumpamount
 
         print(self.size)
         print(self.game.assets['player'].get_size())

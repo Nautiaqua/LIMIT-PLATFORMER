@@ -13,7 +13,6 @@ class Game:
         self.screen = pygame.display.set_mode((960, 864)) # Initialize screen.
         self.surface = pygame.Surface((320, 288))
         self.clock = pygame.time.Clock() #initialize clocc
-                
 
         self.movement = [False, False]
 
@@ -23,7 +22,7 @@ class Game:
             'player': load_image('player/player_base.png')
         }
 
-        self.player = PhysicsEntity(self, 'player', (50, 50), (15, 15))
+        self.player = PhysicsEntity(self, 'player', 5, (50, 50), (15, 15))
         self.tilemap = Tilemap(self, tile_size = 16) # for the sake of clarity.
 
     def run(self):
@@ -46,15 +45,20 @@ class Game:
                     if event.key == pygame.K_d:
                         self.movement[1] = True
                     if event.key == pygame.K_SPACE:
-                        if (self.player.canJump == True):
+                        if (self.player.canJump == True and self.player.JumpsLeft > 0):
                             self.player.velocity[1] = -3
                             self.player.canJump = False
+                            self.player.JumpsLeft -= 1
 
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_a:
                         self.movement[0] = False
                     if event.key == pygame.K_d:
                         self.movement[1] = False
+
+                if self.player.JumpsLeft == 0:
+                    print("NO MORE JUMPS") # this is placeholder code until level spawns are implemented.
+                    
 
             scaled = pygame.transform.scale(self.surface, (960, 864))
             self.screen.blit(scaled, (0, 0))
