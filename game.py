@@ -182,7 +182,7 @@ class Game:
         self.isHub = json.load(open(self.levelPath + self.currentLevel)).get("ishub", False)
 
         self.hubFont = pygame.font.SysFont('Arial', 12)
-        self.hubText = 'this is your jump count.\ndo not let it run out!\nif it does, you fail the level!\n            v'
+        self.hubText = 'this is your jump count.\ndo not let it run out!\nif it does, you fail the level!\n                v'
         self.hubTextTimer = 120
         
         # debug code lol
@@ -194,7 +194,7 @@ class Game:
         if self.hubTextTimer > 0 and self.isHub:
             hubText_surface = self.hubFont.render(self.hubText, True, (0, 0, 0))
             hubText_surface.set_alpha(100)
-            text_rect = hubText_surface.get_rect(center=(180, 113)) 
+            text_rect = hubText_surface.get_rect(center=(181, 109)) 
             self.surface.blit(hubText_surface, text_rect)
 
     def run(self):
