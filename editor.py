@@ -35,6 +35,7 @@ class Editor:
             'sign': load_images('tiles/sign'),
             'spike': load_images('tiles/spike'),
             'door': load_images('tiles/door'),
+            'exitdoor': load_images('tiles/exitdoor')
         }
         
         self.movement = [False, False, False, False]

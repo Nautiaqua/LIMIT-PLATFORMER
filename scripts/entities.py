@@ -1,4 +1,5 @@
 import pygame
+from scripts.tilemap import Tilemap
 
 class PhysicsEntity:
     def __init__(self, game, e_type, jumpamount, pos, size):
@@ -63,6 +64,14 @@ class PhysicsEntity:
             self.coyote_timer -= self.dt
 
         self.canJump = (self.collisions['down'] or self.coyote_timer > 0) and self.JumpsLeft > 0
+
+    def currentTileGet(self, activeTilemap, xPosition, yPosition):
+        xTile = int((xPosition + self.size[0] / 2) // activeTilemap.tile_size)
+        yTile = int((yPosition + self.size[1] / 2) // activeTilemap.tile_size)
+        tilePos = str(xTile) + ";" + str(yTile)
+        currentTile = activeTilemap.tilemap.get(tilePos)
+        return currentTile
+
 
     def render(self, surfc): #surfc is surface
         surfc.blit(self.game.assets['player'], self.pos)

@@ -14,6 +14,7 @@ AUTOTILE_MAP = {
 }
 NEIGHBOR_OFFSETS = [(-1, 0), (-1, -1), (0, -1), (1, -1), (1, 0), (0, 0), (-1, 1), (0, 1), (1, 1)]
 PHYSICS_TILES = {'block', 'spike'}
+EXITDOOR = {'exitdoor'}
 
 class Tilemap:
     def __init__(self, game, tile_size=16):
