@@ -27,11 +27,12 @@ class Game:
 
     def run(self):
         while True:
+            self.deltatime = self.clock.tick(60) / 1000
             self.surface.fill((174, 166, 145)) # fill the screen with the chosen color.
 
             self.tilemap.render(self.surface) #renders tilemap BEFORE player
 
-            self.player.update(self.tilemap, (self.movement[1] - self.movement[0], 0))  #moves player left and right
+            self.player.update(self.deltatime, self.tilemap, (self.movement[1] - self.movement[0], 0))  #moves player left and right
             self.player.render(self.surface) #renders player
 
             for event in pygame.event.get():
@@ -49,6 +50,7 @@ class Game:
                             self.player.velocity[1] = -3
                             self.player.canJump = False
                             self.player.JumpsLeft -= 1
+                            self.player.coyote_timer = 0
 
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_a:
@@ -64,6 +66,5 @@ class Game:
             self.screen.blit(scaled, (0, 0))
 
             pygame.display.update()
-            self.clock.tick(60) # sets frame rate to 60 fps
 
 Game().run()

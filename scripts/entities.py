@@ -9,8 +9,11 @@ class PhysicsEntity:
         self.collisions = {'up': False, 'down': False, 'right': False, 'left': False}
         self.velocity = [0,0] # updated every frame based on acceleration
         self.speed = 1.5
-        self.canJump = True
+        self.canJump = False
         self.JumpsLeft = jumpamount
+
+        self.coyote_timer = 0
+        self.coyote_time_max = 0.2 # THIS IS IN SECONDS.
 
         print(self.size)
         print(self.game.assets['player'].get_size())
@@ -18,8 +21,9 @@ class PhysicsEntity:
     def rect(self):
         return pygame.Rect(self.pos[0], self.pos[1], self.size[0], self.size[1])
 
-    def update(self, tilemap, movement=(0, 0)):
+    def update(self, dt, tilemap, movement=(0, 0),):
         self.collisions = {'up': False, 'down': False, 'right': False, 'left': False}
+        self.dt = dt
 
         frame_movement = (movement[0] * self.speed + self.velocity[0], movement[1] + self.velocity [1])
 
@@ -52,8 +56,13 @@ class PhysicsEntity:
         if self.collisions['down'] or self.collisions['up']:
             self.velocity[1] = 0
 
+        # coyote timer! what this does is allow the player to jump a  few frames after falling off. you'll see this in celeste.
         if self.collisions['down']:
-            self.canJump = True
+            self.coyote_timer = self.coyote_time_max
+        else:
+            self.coyote_timer -= self.dt
+
+        self.canJump = (self.collisions['down'] or self.coyote_timer > 0) and self.JumpsLeft > 0
 
     def render(self, surfc): #surfc is surface
         surfc.blit(self.game.assets['player'], self.pos)
