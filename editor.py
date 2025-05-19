@@ -34,6 +34,7 @@ class Editor:
             'block': load_images('tiles/block'),
             'sign': load_images('tiles/sign'),
             'spike': load_images('tiles/spike'),
+            'door': load_images('tiles/door'),
         }
         
         self.movement = [False, False, False, False]
