@@ -21,7 +21,7 @@ class Editor:
 
         # don't change the levelpath.
         self.levelPath = "data/levels/"
-        self.levelFile = "test.json"
+        self.levelFile = "hub.json"
         self.loadedLevel = self.levelPath + self.levelFile
 
         pygame.display.set_caption('editor')
@@ -35,7 +35,8 @@ class Editor:
             'sign': load_images('tiles/sign'),
             'spike': load_images('tiles/spike'),
             'door': load_images('tiles/door'),
-            'exitdoor': load_images('tiles/exitdoor')
+            'exitdoor': load_images('tiles/exitdoor'),
+            'numbers': load_images('tiles/numbers')
         }
         
         self.movement = [False, False, False, False]
