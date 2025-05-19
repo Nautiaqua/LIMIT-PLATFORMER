@@ -16,11 +16,12 @@ class Game:
         self.clock = pygame.time.Clock() #initialize clocc
 
         self.movement = [False, False]
+        self.noJumps = False
 
         # this handles the level loading.
         self.levelPath = "data/levels/"
         self.currentLevel = "test" + ".json"
-        # change the first value
+        # i have no clue why i dont use current level ngl
 
         # this loads in all the assets from the data folder.
         self.assets = {
@@ -29,6 +30,11 @@ class Game:
             'spike': load_images('tiles/spike'),
             'player': load_image('player/player_base.png')
         }
+
+        # this part is for the jump popup thingymajigy
+        self.font = pygame.font.Font('data/fonts/pixelfont.ttf', 20)
+        self.popup_text = ''
+        self.popup_timer = 120 #this is based on frames.
 
         self.tilemap = Tilemap(self, tile_size = 16) # for the sake of clarity.
 
@@ -62,15 +68,24 @@ class Game:
         if (transition):
             self.screen_wipe()
         self.tilemap.load(self.levelPath + levelName)
+        self.noJumps = False
         self.player.pos = [50, 50]  # or a position from the level data
         self.player.JumpsLeft = json.load(open(self.levelPath + levelName)).get("maxjumps", 1)
         self.player.velocity = [0, 0]
         self.player.coyote_timer = 0
+        self.currentLevel = levelName
 
     def run(self):
         while True:
             self.deltatime = self.clock.tick(60) / 1000
             self.surface.fill((174, 166, 145)) # fill the screen with the chosen color.
+
+            if self.popup_timer > 0:
+                popup_surface = self.font.render(self.popup_text, True, (0, 0, 0))
+                popup_surface.set_alpha(100)
+                text_rect = popup_surface.get_rect(center=(160, 140)) 
+                self.surface.blit(popup_surface, text_rect)
+                self.popup_timer -= 1
 
             self.tilemap.render(self.surface) #renders tilemap BEFORE player
 
@@ -88,20 +103,36 @@ class Game:
                     if event.key == pygame.K_d:
                         self.movement[1] = True
                     if event.key == pygame.K_SPACE:
+                        # basically enables infinite jumps if jumps is set to 255
+                        if (self.player.canJump == True and self.player.JumpsLeft == 255):
+                            self.player.velocity[1] = -3
+                            self.player.canJump = False
+                            self.player.coyote_timer = 0
+
+                        # now THIS is the code for the name of the game
                         if (self.player.canJump == True and self.player.JumpsLeft > 0):
                             self.player.velocity[1] = -3
                             self.player.canJump = False
                             self.player.JumpsLeft -= 1
                             self.player.coyote_timer = 0
 
-                        # basically enables infinite jumps if jumps is set to 255
-                        if (self.player.canJump == True and self.player.JumpsLeft == 255):
-                            self.player.velocity[1] = -3
-                            self.player.canJump = False
-                            self.player.JumpsLeft -= 1
-                            self.player.coyote_timer = 0
-                    if event.key == pygame.K_l: # THIS IS FOR TESTING PURPOSES ONLY
-                        self.load_level("test2.json")
+                            strJump = str(self.player.JumpsLeft)
+                            self.popup_text = strJump
+                            self.popup_timer = 60
+
+                        if (self.noJumps == True):
+                            self.load_level("test2.json")
+                            self.popup_text = 'Level Reset!'
+                            self.popup_timer = 60
+
+                        if (self.player.JumpsLeft == 0):
+                            self.noJumps = True
+
+                    # debugger controls. these keybinds are here to help for debugging the game.
+                    if event.key == pygame.K_l:
+                        self.load_level("test2.json", True)
+                    if event.key == pygame.K_p:
+                        print(self.player.pos)
 
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_a:
@@ -111,7 +142,6 @@ class Game:
 
                 if self.player.JumpsLeft == 0:
                     print("NO MORE JUMPS") # this is placeholder code until level spawns are implemented.
-                    
 
             scaled = pygame.transform.scale(self.surface, (960, 864))
             self.screen.blit(scaled, (0, 0))
