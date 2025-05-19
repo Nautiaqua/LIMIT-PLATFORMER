@@ -5,15 +5,28 @@ import pygame
 from scripts.utils import load_images
 from scripts.tilemap import Tilemap
 
-RENDER_SCALE = 2.0
+RENDER_SCALE = 3.0
+
+# NOTE: Credit to DaFluffyPotato for the level editor code. This was just modified for our use.
+# Controls
+# CTRL + S to Save
+# Left click to place tile
+# Right click to remove tile
+# Scroll to select between tiles
+# Shift + Scroll to select the variants of a tile.
 
 class Editor:
     def __init__(self):
         pygame.init()
 
+        # don't change the levelpath.
+        self.levelPath = "data/levels/"
+        self.levelFile = "test.json"
+        self.loadedLevel = self.levelPath + self.levelFile
+
         pygame.display.set_caption('editor')
-        self.screen = pygame.display.set_mode((640, 480))
-        self.display = pygame.Surface((320, 240))
+        self.screen = pygame.display.set_mode((960, 864)) # Initialize screen.
+        self.display = pygame.Surface((320, 288))
 
         self.clock = pygame.time.Clock()
         
@@ -28,7 +41,7 @@ class Editor:
         self.tilemap = Tilemap(self, tile_size=16)
         
         try:
-            self.tilemap.load('map.json')
+            self.tilemap.load(self.loadedLevel)
         except FileNotFoundError:
             pass
         
@@ -41,7 +54,13 @@ class Editor:
         self.clicking = False
         self.right_clicking = False
         self.shift = False
+        self.ctrl = False
         self.ongrid = True
+
+        self.font = pygame.font.SysFont('Arial', 16)
+        self.popup_text = ''
+        self.popup_timer = 120 #this is based on frames.
+
         
     def run(self):
         while True:
@@ -56,10 +75,10 @@ class Editor:
             current_tile_img = self.assets[self.tile_list[self.tile_group]][self.tile_variant].copy()
             current_tile_img.set_alpha(100)
             
-            mpos = pygame.mouse.get_pos()
-            mpos = (mpos[0] / RENDER_SCALE, mpos[1] / RENDER_SCALE)
-            tile_pos = (int((mpos[0] + self.scroll[0]) // self.tilemap.tile_size), int((mpos[1] + self.scroll[1]) // self.tilemap.tile_size))
-            
+            mpos_screen = pygame.mouse.get_pos()
+            mpos = (mpos_screen[0] / RENDER_SCALE + self.scroll[0], mpos_screen[1] / RENDER_SCALE + self.scroll[1])
+            tile_pos = (int(mpos[0] // self.tilemap.tile_size), int(mpos[1] // self.tilemap.tile_size))
+
             if self.ongrid:
                 self.display.blit(current_tile_img, (tile_pos[0] * self.tilemap.tile_size - self.scroll[0], tile_pos[1] * self.tilemap.tile_size - self.scroll[1]))
             else:
@@ -110,6 +129,7 @@ class Editor:
                         self.right_clicking = False
                         
                 if event.type == pygame.KEYDOWN:
+                    '''
                     if event.key == pygame.K_a:
                         self.movement[0] = True
                     if event.key == pygame.K_d:
@@ -118,14 +138,21 @@ class Editor:
                         self.movement[2] = True
                     if event.key == pygame.K_s:
                         self.movement[3] = True
+                    ''' # disables the camera movement controls, we don't need it.
                     if event.key == pygame.K_g:
                         self.ongrid = not self.ongrid
                     if event.key == pygame.K_t:
                         self.tilemap.autotile()
-                    if event.key == pygame.K_o:
-                        self.tilemap.save('map.json')
+                    if self.ctrl:
+                        if event.key == pygame.K_s:
+                            self.tilemap.save(self.loadedLevel)
+                            print("Saved to", self.loadedLevel)
+                            self.popup_text = 'File Saved!'
+                            self.popup_timer = 60
                     if event.key == pygame.K_LSHIFT:
                         self.shift = True
+                    if event.key == pygame.K_LCTRL:
+                        self.ctrl = True
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_a:
                         self.movement[0] = False
@@ -137,6 +164,11 @@ class Editor:
                         self.movement[3] = False
                     if event.key == pygame.K_LSHIFT:
                         self.shift = False
+
+            if self.popup_timer > 0:
+                popup_surface = self.font.render(self.popup_text, True, (255, 255, 255))
+                self.display.blit(popup_surface, (110, 10))
+                self.popup_timer -= 1
             
             self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0, 0))
             pygame.display.update()

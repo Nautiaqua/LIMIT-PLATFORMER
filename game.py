@@ -19,11 +19,16 @@ class Game:
         # This loads in all the assets from the data folder.
         self.assets = {
             'block': load_images('tiles/block'),
+            'sign': load_images('tiles/sign'),
+            'spike': load_images('tiles/spike'),
             'player': load_image('player/player_base.png')
         }
 
-        self.player = PhysicsEntity(self, 'player', 5, (50, 50), (15, 15))
+        self.player = PhysicsEntity(self, 'player', 100, (50, 50), (15, 15))
         self.tilemap = Tilemap(self, tile_size = 16) # for the sake of clarity.
+
+        # test level loading, this will be mvoed later.
+        self.tilemap.load('data/levels/test.json')
 
     def run(self):
         while True:
