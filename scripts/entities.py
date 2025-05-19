@@ -71,6 +71,12 @@ class PhysicsEntity:
         tilePos = str(xTile) + ";" + str(yTile)
         currentTile = activeTilemap.tilemap.get(tilePos)
         return currentTile
+    
+    def currentTilePos(self, activeTilemap, xPosition, yPosition):
+        xCurTile = int((xPosition + self.size[0] / 2) // activeTilemap.tile_size)
+        yCurTile = int((yPosition + self.size[1] / 2) // activeTilemap.tile_size)
+        cTilePos = str(xCurTile) + ";" + str(yCurTile)
+        return cTilePos
 
 
     def render(self, surfc): #surfc is surface

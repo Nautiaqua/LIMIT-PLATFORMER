@@ -43,11 +43,10 @@ class Game:
 
         self.tilemap = Tilemap(self, tile_size = 16) # for the sake of clarity.
 
-        # replace this with main menu later on
-        self.tilemap.load(self.levelPath + self.currentLevel)
-
-        self.player = PhysicsEntity(self, 'player', 255, (50, 50), (15, 15))
+        self.player = PhysicsEntity(self, 'player', json.load(open(self.levelPath + self.currentLevel)).get("maxjumps", 1), (50, 50), (15, 15))
         self.cTileType = 'None'
+
+        self.load_level("hub.json", 32, 257)
         
     def screen_wipe(self, duration=500, reverse=False):
         fade_surface = pygame.Surface(self.screen.get_size()).convert()
@@ -70,28 +69,32 @@ class Game:
             pygame.display.update()
             self.clock.tick(60)
 
-    def load_level(self, levelName, transition = False):
+    def load_level(self, levelName, spawnX, spawnY, transition = False):
         if (transition):
             self.screen_wipe()
         self.tilemap.load(self.levelPath + levelName)
         self.noJumps = False
-        self.player.pos = [50, 50]  # or a position from the level data
+        # PLAYER POS TOOK SO FKIN LONG TO PROPERLY ASSIGN
+        self.player.pos = [spawnX, spawnY]
         self.player.JumpsLeft = json.load(open(self.levelPath + levelName)).get("maxjumps", 1)
         self.player.velocity = [0, 0]
         self.player.coyote_timer = 0
         self.currentLevel = levelName
+        self.respawnX = spawnX
+        self.respawnY = spawnY
 
     def hubappear(self):
         self.isHub = json.load(open(self.levelPath + self.currentLevel)).get("ishub", False)
-        self.alreadyprinted = False
 
         self.hubFont = pygame.font.SysFont('Arial', 12)
         self.hubText = '^ this is your jump count.\ndo not let it run out!'
         self.hubTextTimer = 120
         
         # debug code lol
-        if self.isHub and self.alreadyprinted == False:
+        '''
+        if self.isHub:
             print("ITS THE HUB AREA")
+        '''
             
         if self.hubTextTimer > 0 and self.isHub:
             hubText_surface = self.hubFont.render(self.hubText, True, (0, 0, 0))
@@ -114,11 +117,7 @@ class Game:
                 self.popup_text = self.strJump
                 self.popup_timer = 60
 
-            # --- THIS BLOCK OF CODE IS SPECIFICALLY FOR IF THE CURRENT LEVEL IS THE HUB AREA - START ---
             self.hubappear()
-
-
-            # --- THIS BLOCK OF CODE IS SPECIFICALLY FOR IF THE CURRENT LEVEL IS THE HUB AREA - STOP ---
             
             self.tilemap.render(self.surface) #renders tilemap BEFORE player
             self.player.update(self.deltatime, self.tilemap, (self.movement[1] - self.movement[0], 0))  #moves player left and right
@@ -158,33 +157,57 @@ class Game:
                             self.player.coyote_timer = 0
 
                         if (self.noJumps == True):
-                            self.load_level(self.currentLevel)
+                            self.load_level(self.currentLevel, self.respawnX, self.respawnY)
                         if (self.player.JumpsLeft == 0):
                             self.noJumps = True
                     if event.key == pygame.K_r:
-                        self.load_level(self.currentLevel)
+                        self.load_level(self.currentLevel, self.respawnX, self.respawnY)
+
+                    # Interaction for loading levels
+                    if event.key == pygame.K_z:
+                        cTile = self.player.currentTileGet(self.tilemap, self.player.pos[0], self.player.pos[1])
+                        if (cTile != None):
+                            print(cTile['type'])
+
+                            if (self.isHub == True and cTile['type'] == 'exitdoor'):
+                                print("level chosen")
+
+                                # The game will crash if the level doesn't exist.
+                                if (self.player.currentTilePos(self.tilemap, self.player.pos[0], self.player.pos[1]) == '17;16'):
+                                    # Test Level (End Door)
+                                    self.load_level("test.json", 50, 50,True)
+                                if (self.player.currentTilePos(self.tilemap, self.player.pos[0], self.player.pos[1]) == '7;16'):
+                                    # First Level
+                                    self.load_level("level1.json", 50, 50, True)
+                                if (self.player.currentTilePos(self.tilemap, self.player.pos[0], self.player.pos[1]) == '9;16'):
+                                    # Second Level
+                                    self.load_level("level2.json", 50, 50, True)
+                                if (self.player.currentTilePos(self.tilemap, self.player.pos[0], self.player.pos[1]) == '11;16'):
+                                    # Third Level
+                                    self.load_level("level3.json", 50, 50, True)
+                                if (self.player.currentTilePos(self.tilemap, self.player.pos[0], self.player.pos[1]) == '13;16'):
+                                    # Fourth Level
+                                    self.load_level("level4.json", 50, 50, True)
+                                if (self.player.currentTilePos(self.tilemap, self.player.pos[0], self.player.pos[1]) == '15;16'):
+                                    # Fifth Level
+                                    self.load_level("level5.json", 50, 50, True)
+                                
+
+
+                            if (self.isHub == False and cTile['type'] == 'exitdoor'):
+                                print("LEVEL EXIT")
 
                     # debugger controls. these keybinds are here to help for debugging the game.
                     if event.key == pygame.K_l:
-                        self.load_level("test2.json", True)
+                        self.load_level("test.json", True)
                         self.popup_text = 'Level Reset!'
                         self.popup_timer = 60
                     if event.key == pygame.K_p:
                         print(self.player.pos)
 
-                    if event.key == pygame.K_o:
-                        cTile = self.player.currentTileGet(self.tilemap, self.player.pos[0], self.player.pos[1])
-                        if (cTile != None):
-                            print(cTile['type'])
-                            if (cTile['type'] == 'exitdoor'):
-                                print("LEVEL EXIT")
                             
                     if event.key == pygame.K_i:
-                        xTile = int((self.player.pos[0] + self.player.size[0] / 2) // self.tilemap.tile_size)
-                        yTile = int((self.player.pos[0] + self.player.size[1] / 2) // self.tilemap.tile_size)
-                        tilePos = str(xTile) + ";" + str(yTile)
-                        currentTile = self.tilemap.tilemap.get(tilePos)
-                        print(tilePos)
+                        print(self.player.currentTilePos(self.tilemap, self.player.pos[0], self.player.pos[1]))
 
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_a:
