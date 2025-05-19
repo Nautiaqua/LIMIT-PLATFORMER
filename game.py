@@ -38,6 +38,9 @@ class Game:
 
         # this part is for the jump popup thingymajigy
         self.font = pygame.font.SysFont('Arial', 20)
+        self.titlefont = pygame.Font('data/fonts/Pixellari.ttf', 40)
+        self.startfont = pygame.font.SysFont('Arial', 15)
+        self.startfont2 = pygame.font.SysFont('Arial', 25)
         self.popup_text = ''
         self.popup_timer = 120 #this is based on frames.
 
@@ -47,7 +50,100 @@ class Game:
         self.cTileType = 'None'
 
         self.load_level("hub.json", 32, 257)
+        self.show_title_screen()
+
+    def show_title_screen(self):
+        while True:
+            self.surface.fill((174, 166, 145))
+
+            start_time = pygame.time.get_ticks()
+            fade_surface = pygame.Surface(self.screen.get_size()).convert()
+            fade_surface.fill((174, 166, 145))
+
+            title_contain = "LimitJump!"
+            start_contain = "Press SPACE to start"
+
+            title_text = self.titlefont.render(title_contain, True, (78, 63, 42))
+            start_text = self.startfont.render(start_contain, True, (78, 63, 42))
+            titlerect = title_text.get_rect(center=(160, 140))
+            startrect = start_text.get_rect(center=(160, 240))
+            self.surface.blit(title_text, titlerect)
+            self.surface.blit(start_text, startrect)
+
+            scaled = pygame.transform.scale(self.surface, (960, 864))
+            self.screen.blit(scaled, (0, 0))
+            pygame.display.flip()
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        while True:
+                            now = pygame.time.get_ticks()
+                            elapsed = now - start_time
+                            if elapsed > 500:
+                                break
+
+                            alpha = min(255, int((elapsed / 500) * 255))
+                            fade_surface.set_alpha(alpha)
+
+                            self.screen.blit(pygame.transform.scale(self.surface, self.screen.get_size()), (0, 0))
+                            self.screen.blit(fade_surface, (0, 0))
+
+                            pygame.display.update()
+                        self.show_controls()
+                        return
+
+                        
+
+            self.clock.tick(60)
         
+    def show_controls(self):
+        while True:
+            self.surface.fill((174, 166, 145))
+
+            start_time = pygame.time.get_ticks()
+            fade_surface = pygame.Surface(self.screen.get_size()).convert()
+            fade_surface.fill((174, 166, 145))
+
+            title_text = self.startfont2.render("Controls:", True, (78, 63, 42))
+            start_text = self.startfont.render("WASD or Arrow Keys to Move\nZ or L to interact with doors\nSPACE to Jump\n\nPress SPACE again to continue", True, (78, 63, 42))
+            titlerect = title_text.get_rect(center=(160, 70))
+            startrect = start_text.get_rect(center=(160, 150))
+
+            self.surface.blit(title_text, titlerect)
+            self.surface.blit(start_text, startrect)
+
+            scaled = pygame.transform.scale(self.surface, (960, 864))
+            self.screen.blit(scaled, (0, 0))
+            pygame.display.flip()
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        while True:
+                            now = pygame.time.get_ticks()
+                            elapsed = now - start_time
+                            if elapsed > 500:
+                                break
+
+                            alpha = min(255, int((elapsed / 500) * 255))
+                            fade_surface.set_alpha(alpha)
+
+                            self.screen.blit(pygame.transform.scale(self.surface, self.screen.get_size()), (0, 0))
+                            self.screen.blit(fade_surface, (0, 0))
+
+                            pygame.display.update()
+                        return
+                        
+
+            self.clock.tick(60)
+
     def screen_wipe(self, duration=500, reverse=False):
         fade_surface = pygame.Surface(self.screen.get_size()).convert()
         fade_surface.fill((0, 0, 0))
@@ -62,7 +158,6 @@ class Game:
             alpha = min(255, int((elapsed / duration) * 255))
             fade_surface.set_alpha(alpha)
 
-            # Redraw last frame behind the fade
             self.screen.blit(pygame.transform.scale(self.surface, self.screen.get_size()), (0, 0))
             self.screen.blit(fade_surface, (0, 0))
 
@@ -87,7 +182,7 @@ class Game:
         self.isHub = json.load(open(self.levelPath + self.currentLevel)).get("ishub", False)
 
         self.hubFont = pygame.font.SysFont('Arial', 12)
-        self.hubText = '^ this is your jump count.\ndo not let it run out!'
+        self.hubText = 'this is your jump count.\ndo not let it run out!\n            v'
         self.hubTextTimer = 120
         
         # debug code lol
@@ -99,7 +194,7 @@ class Game:
         if self.hubTextTimer > 0 and self.isHub:
             hubText_surface = self.hubFont.render(self.hubText, True, (0, 0, 0))
             hubText_surface.set_alpha(100)
-            text_rect = hubText_surface.get_rect(center=(160, 150)) 
+            text_rect = hubText_surface.get_rect(center=(180, 113)) 
             self.surface.blit(hubText_surface, text_rect)
 
     def run(self):
@@ -131,6 +226,11 @@ class Game:
                 text_rect = popup_surface.get_rect(center=(160, 140)) 
                 self.surface.blit(popup_surface, text_rect)
                 self.popup_timer -= 1
+
+            if (self.player.die == True):
+                print("DYING")
+                self.load_level(self.currentLevel, self.respawnX, self.respawnY)
+                self.player.die = False
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT: # quits game, duh
@@ -193,9 +293,10 @@ class Game:
                                     self.load_level("level5.json", 50, 50, True)
                                 
 
-
+                            # exits the level if interacting with an exitdoor thats NOT in hub.
                             if (self.isHub == False and cTile['type'] == 'exitdoor'):
                                 print("LEVEL EXIT")
+                                self.load_level("hub.json", 32, 257, True)
 
                     # debugger controls. these keybinds are here to help for debugging the game.
                     if event.key == pygame.K_l:

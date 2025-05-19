@@ -14,6 +14,7 @@ AUTOTILE_MAP = {
 }
 NEIGHBOR_OFFSETS = [(-1, 0), (-1, -1), (0, -1), (1, -1), (1, 0), (0, 0), (-1, 1), (0, 1), (1, 1)]
 PHYSICS_TILES = {'block', 'spike'}
+KILL_TILES = {'spike'}
 EXITDOOR = {'exitdoor'}
 
 class Tilemap:

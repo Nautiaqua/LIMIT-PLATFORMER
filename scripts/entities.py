@@ -1,5 +1,6 @@
 import pygame
 from scripts.tilemap import Tilemap
+from scripts.tilemap import KILL_TILES
 
 class PhysicsEntity:
     def __init__(self, game, e_type, jumpamount, pos, size):
@@ -12,6 +13,7 @@ class PhysicsEntity:
         self.speed = 1.5
         self.canJump = False
         self.JumpsLeft = jumpamount
+        self.die = False
 
         self.coyote_timer = 0
         self.coyote_time_max = 0.2 # THIS IS IN SECONDS.
@@ -64,6 +66,12 @@ class PhysicsEntity:
             self.coyote_timer -= self.dt
 
         self.canJump = (self.collisions['down'] or self.coyote_timer > 0) and self.JumpsLeft > 0
+
+        for tile in tilemap.tiles_around(self.pos):
+            if tile['type'] in KILL_TILES:
+                self.die = True
+            else:
+                pass
 
     def currentTileGet(self, activeTilemap, xPosition, yPosition):
         xTile = int((xPosition + self.size[0] / 2) // activeTilemap.tile_size)
