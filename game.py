@@ -19,6 +19,7 @@ class Game:
         self.movement = [False, False]
         self.noJumps = False
         self.levelReset = False
+        self.jumpsUsed = 0
 
         # this handles the level loading.
         self.levelPath = "data/levels/"
@@ -176,12 +177,13 @@ class Game:
         self.currentLevel = levelName
         self.respawnX = spawnX
         self.respawnY = spawnY
+        self.jumpsUsed = 0
 
     def hubappear(self):
         self.isHub = json.load(open(self.levelPath + self.currentLevel)).get("ishub", False)
 
         self.hubFont = pygame.font.SysFont('Arial', 12)
-        self.hubText = 'this is your jump count.\ndo not let it run out!\nif it does, the level resets!\n                v'
+        self.hubText = 'this is your jump count.\ndo not let it run out!\nif it does, the level resets!\n               v'
         self.hubTextTimer = 120
         
         # debug code lol
@@ -240,8 +242,45 @@ class Game:
                         return
             self.clock.tick(60)
 
-    def run(self):
+    def levelcomplete(self):
+        while True:
+            self.surface.fill((174, 166, 145))
+            pygame.draw.rect(self.surface, (53, 43, 29), (160-190 // 2, 144-35 // 2, 190, 35))
 
+            usedtxt = self.smallfont.render("Level Complete! You used...", True, (255,255,255))
+            usedrect = usedtxt.get_rect(center=(163, 138))
+            self.surface.blit(usedtxt, usedrect)
+
+            if self.jumpsUsed == 1:
+                jumpcontain = "1 jump!"
+            elif self.jumpsUsed == 0:
+                jumpcontain = "No jumps!"
+            elif self.jumpsUsed > 1:
+                jumpcontain = str(self.jumpsUsed) + " jumps!"
+
+            jumptxt = self.startfont.render(jumpcontain, True, (255,255,255))
+            jumprect = jumptxt.get_rect(center=(160, 150))
+            self.surface.blit(jumptxt, jumprect)
+
+            continuetxt = self.startfont.render("Press SPACE to go back to the hub.", True, (78, 63, 42))
+            cntrect = continuetxt.get_rect(center=(160, 200))
+            self.surface.blit(continuetxt, cntrect)
+
+            scaled = pygame.transform.scale(self.surface, (960, 864))
+            self.screen.blit(scaled, (0, 0))
+            pygame.display.flip()
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                        pygame.quit()
+                        sys.exit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        return
+            self.clock.tick(60)
+
+
+    def run(self):
         while True:
             self.deltatime = self.clock.tick(60) / 1000
             self.surface.fill((174, 166, 145)) # fill the screen with the chosen color.
@@ -262,6 +301,7 @@ class Game:
             self.player.update(self.deltatime, self.tilemap, (self.movement[1] - self.movement[0], 0))  #moves player left and right
             self.player.render(self.surface) #renders player
 
+            
 
             # renders the jump counter
             if self.popup_timer > 0:
@@ -303,6 +343,7 @@ class Game:
                             self.player.canJump = False
                             self.player.JumpsLeft -= 1
                             self.player.coyote_timer = 0
+                            self.jumpsUsed += 1
 
                         if (self.noJumps == True):
                             self.load_level(self.currentLevel, self.respawnX, self.respawnY)
@@ -323,7 +364,7 @@ class Game:
                                 # The game will crash if the level doesn't exist.
                                 if (self.player.currentTilePos(self.tilemap, self.player.pos[0], self.player.pos[1]) == '17;16'):
                                     # Test Level (End Door)
-                                    self.load_level("test.json", 50, 50,True)
+                                    self.load_level("test.json", 50, 50, True)
                                 if (self.player.currentTilePos(self.tilemap, self.player.pos[0], self.player.pos[1]) == '7;16'):
                                     # First Level
                                     self.load_level("level1.json", 50, 50, True)
@@ -344,6 +385,8 @@ class Game:
                             # exits the level if interacting with an exitdoor thats NOT in hub.
                             if (self.isHub == False and cTile['type'] == 'exitdoor'):
                                 print("LEVEL EXIT")
+                                self.screen_wipe()
+                                self.levelcomplete()
                                 self.load_level("hub.json", 32, 257, True)
 
                     # debugger controls. these keybinds are here to help for debugging the game.
