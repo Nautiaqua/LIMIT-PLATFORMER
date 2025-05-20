@@ -13,11 +13,8 @@ class Game:
     def __init__(self):
         self.walk_left_frames = []
         pygame.init()
-<<<<<<< HEAD
-=======
         pygame.mixer.init()
 
->>>>>>> f5807761f14893757a454b73cd4548cfea43fa1b
         pygame.display.set_caption("LimitJump!") # title for the window
         self.screen = pygame.display.set_mode((960, 864), vsync=1) # Initialize screen.
         self.surface = pygame.Surface((320, 288))
@@ -60,12 +57,8 @@ class Game:
 
         # this part is for the jump popup thingymajigy
         self.font = pygame.font.SysFont('Arial', 20)
-<<<<<<< HEAD
-        self.titlefont = pygame.font.Font('data/fonts/Pixellari.ttf', 40)
-=======
         self.smallfont = pygame.font.SysFont('Arial', 10)
         self.titlefont = pygame.Font('data/fonts/Pixellari.ttf', 40)
->>>>>>> f5807761f14893757a454b73cd4548cfea43fa1b
         self.startfont = pygame.font.SysFont('Arial', 15)
         self.startfont2 = pygame.font.SysFont('Arial', 25)
         self.popup_text = ''
