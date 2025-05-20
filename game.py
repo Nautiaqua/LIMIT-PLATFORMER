@@ -429,9 +429,12 @@ class Game:
                                 print("level chosen")
 
                                 # The game will crash if the level doesn't exist.
+                                '''
+                                
                                 if (self.player.currentTilePos(self.tilemap, self.player.pos[0], self.player.pos[1]) == '17;16'):
                                     # Test Level (End Door)
                                     self.load_level("test.json", 50, 50, True)
+                                '''
                                 if (self.player.currentTilePos(self.tilemap, self.player.pos[0], self.player.pos[1]) == '7;16'):
                                     # First Level
                                     self.load_level("level1.json", 20.5, 33.5, True)
