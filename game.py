@@ -103,13 +103,13 @@ class Game:
     def show_controls(self):
         while True:
             self.surface.fill((174, 166, 145))
-
+ 
             start_time = pygame.time.get_ticks()
             fade_surface = pygame.Surface(self.screen.get_size()).convert()
             fade_surface.fill((174, 166, 145))
 
             title_text = self.startfont2.render("Controls:", True, (78, 63, 42))
-            start_text = self.startfont.render("WASD or Arrow Keys to Move\nZ or L to interact with doors\nSPACE to Jump\n\nPress SPACE again to continue", True, (78, 63, 42))
+            start_text = self.startfont.render("W and D or Left and Right Arrow Keys to Move\nZ or L to interact with doors\nSPACE to Jump\nR to reset the level\n\nPress SPACE again to continue", True, (78, 63, 42))
             titlerect = title_text.get_rect(center=(160, 70))
             startrect = start_text.get_rect(center=(160, 150))
 
@@ -198,6 +198,7 @@ class Game:
             self.surface.blit(hubText_surface, text_rect)
 
     def run(self):
+
         while True:
             self.deltatime = self.clock.tick(60) / 1000
             self.surface.fill((174, 166, 145)) # fill the screen with the chosen color.
@@ -238,9 +239,9 @@ class Game:
                     sys.exit()
 
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_a: # d is left, a is right
+                    if event.key == pygame.K_a or event.key == pygame.K_LEFT: # d is left, a is right
                         self.movement[0] = True
-                    if event.key == pygame.K_d:
+                    if event.key == pygame.K_d or event.key == pygame.K_RIGHT:
                         self.movement[1] = True
                     if event.key == pygame.K_SPACE:
                         # basically enables infinite jumps if jumps is set to 255
@@ -264,7 +265,7 @@ class Game:
                         self.load_level(self.currentLevel, self.respawnX, self.respawnY)
 
                     # Interaction for loading levels
-                    if event.key == pygame.K_z:
+                    if event.key == pygame.K_z or event.key == pygame.K_l:
                         cTile = self.player.currentTileGet(self.tilemap, self.player.pos[0], self.player.pos[1])
                         if (cTile != None):
                             print(cTile['type'])
@@ -299,21 +300,15 @@ class Game:
                                 self.load_level("hub.json", 32, 257, True)
 
                     # debugger controls. these keybinds are here to help for debugging the game.
-                    if event.key == pygame.K_l:
-                        self.load_level("test.json", True)
-                        self.popup_text = 'Level Reset!'
-                        self.popup_timer = 60
                     if event.key == pygame.K_p:
                         print(self.player.pos)
-
-                            
                     if event.key == pygame.K_i:
                         print(self.player.currentTilePos(self.tilemap, self.player.pos[0], self.player.pos[1]))
 
                 if event.type == pygame.KEYUP:
-                    if event.key == pygame.K_a:
+                    if event.key == pygame.K_a or event.key == pygame.K_LEFT:
                         self.movement[0] = False
-                    if event.key == pygame.K_d:
+                    if event.key == pygame.K_d or event.key == pygame.K_RIGHT:
                         self.movement[1] = False
 
             scaled = pygame.transform.scale(self.surface, (960, 864))

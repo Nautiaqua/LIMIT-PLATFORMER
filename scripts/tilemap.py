@@ -13,7 +13,7 @@ AUTOTILE_MAP = {
     tuple(sorted([(1, 0), (-1, 0), (0, 1), (0, -1)])): 8,
 }
 NEIGHBOR_OFFSETS = [(-1, 0), (-1, -1), (0, -1), (1, -1), (1, 0), (0, 0), (-1, 1), (0, 1), (1, 1)]
-PHYSICS_TILES = {'block', 'spike'}
+PHYSICS_TILES = {'block'}
 KILL_TILES = {'spike'}
 EXITDOOR = {'exitdoor'}
 
