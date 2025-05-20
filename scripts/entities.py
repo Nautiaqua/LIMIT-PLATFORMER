@@ -114,11 +114,15 @@ class PhysicsEntity:
 
         self.canJump = (self.collisions['down'] or self.coyote_timer > 0) and self.JumpsLeft > 0
 
-        for tile in tilemap.tiles_around(self.pos):
+        growth = 0
+        entity_rect = self.rect()        
+        self.player_center = (self.pos[0] + self.size[0] // 2, self.pos[1] + self.size[1] // 2)
+        for tile in tilemap.tiles_around(self.player_center):
             if tile['type'] in KILL_TILES:
-                self.die = True
-            else:
-                pass
+                spike_rect = pygame.Rect(tile['pos'][0] * tilemap.tile_size - growth, tile['pos'][1] * tilemap.tile_size - growth, tilemap.tile_size + growth, tilemap.tile_size + growth)
+                if entity_rect.colliderect(spike_rect):
+                    self.die = True
+                   
 
     def currentTileGet(self, activeTilemap, xPosition, yPosition):
         xTile = int((xPosition + self.size[0] / 2) // activeTilemap.tile_size)
