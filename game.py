@@ -38,6 +38,7 @@ class Game:
 
         # this part is for the jump popup thingymajigy
         self.font = pygame.font.SysFont('Arial', 20)
+        self.smallfont = pygame.font.SysFont('Arial', 10)
         self.titlefont = pygame.Font('data/fonts/Pixellari.ttf', 40)
         self.startfont = pygame.font.SysFont('Arial', 15)
         self.startfont2 = pygame.font.SysFont('Arial', 25)
@@ -100,8 +101,7 @@ class Game:
         
     def show_controls(self):
         while True:
-            self.backgroundimage = pygame.image.load('data/background/titlebg.png')
-            self.surface.blit(self.backgroundimage, (0, 0))
+            self.surface.fill((174, 166, 145))
  
             start_time = pygame.time.get_ticks()
             fade_surface = pygame.Surface(self.screen.get_size()).convert()
@@ -181,7 +181,7 @@ class Game:
         self.isHub = json.load(open(self.levelPath + self.currentLevel)).get("ishub", False)
 
         self.hubFont = pygame.font.SysFont('Arial', 12)
-        self.hubText = 'this is your jump count.\ndo not let it run out!\nif it does, you fail the level!\n                v'
+        self.hubText = 'this is your jump count.\ndo not let it run out!\nif it does, the level resets!\n                v'
         self.hubTextTimer = 120
         
         # debug code lol
@@ -201,23 +201,44 @@ class Game:
             self.backgroundimage = pygame.image.load('data/background/transparent.png')
             self.surface.blit(self.backgroundimage, (0, 0))
 
-            pygame.draw.rect(self.surface, (255,255,255), (160-150 // 2, 144-50 // 2, 150, 50))
+            if self.isHub != True:
+                pygame.draw.rect(self.surface, (53, 43, 29), (160-190 // 2, 144-35 // 2, 190, 35))
 
-            scaled = pygame.transform.scale(self.surface, (960, 864))
-            self.screen.blit(scaled, (0, 0))
-            pygame.display.flip()
+                pausetxt = self.startfont.render("Pause", True, (255,255,255))
+                pauserect = pausetxt.get_rect(center=(160, 138))
+                self.surface.blit(pausetxt, pauserect)
+
+                returntxt = self.smallfont.render("Press R to return to the Hub", True, (255,255,255))
+                returnrect = returntxt.get_rect(center=(160, 150))
+                self.surface.blit(returntxt, returnrect)
+
+                scaled = pygame.transform.scale(self.surface, (960, 864))
+                self.screen.blit(scaled, (0, 0))
+                pygame.display.flip()
+
+            if self.isHub == True:
+                pygame.draw.rect(self.surface, (53, 43, 29), (160-190 // 2, 144-20 // 2, 190, 20))
+                pausetxt = self.startfont.render("Pause", True, (255,255,255))
+                pauserect = pausetxt.get_rect(center=(160, 144))
+                self.surface.blit(pausetxt, pauserect)
+
+                scaled = pygame.transform.scale(self.surface, (960, 864))
+                self.screen.blit(scaled, (0, 0))
+                pygame.display.flip()
 
             
             for event in pygame.event.get():
-                if event.type == pygame.KEYDOWN:
-                    if event.type == pygame.QUIT:
+                if event.type == pygame.QUIT:
                         pygame.quit()
                         sys.exit()
+                if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         self.surface.set_alpha(255)
                         return
+                    if self.isHub != True and event.key == pygame.K_r:
+                        self.load_level("hub.json", 32, 257, True)
+                        return
             self.clock.tick(60)
-            
 
     def run(self):
 
