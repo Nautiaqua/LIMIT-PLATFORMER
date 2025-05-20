@@ -21,7 +21,7 @@ class Editor:
 
         # don't change the levelpath.
         self.levelPath = "data/levels/"
-        self.levelFile = "test.json"
+        self.levelFile = "level5.json"
         self.loadedLevel = self.levelPath + self.levelFile
 
         pygame.display.set_caption('editor')

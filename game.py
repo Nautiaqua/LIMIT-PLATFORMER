@@ -434,19 +434,19 @@ class Game:
                                     self.load_level("test.json", 50, 50, True)
                                 if (self.player.currentTilePos(self.tilemap, self.player.pos[0], self.player.pos[1]) == '7;16'):
                                     # First Level
-                                    self.load_level("level1.json", 50, 50, True)
+                                    self.load_level("level1.json", 20.5, 33.5, True)
                                 if (self.player.currentTilePos(self.tilemap, self.player.pos[0], self.player.pos[1]) == '9;16'):
                                     # Second Level
-                                    self.load_level("level2.json", 50, 50, True)
+                                    self.load_level("level2.json", 33.5, 33.1, True)
                                 if (self.player.currentTilePos(self.tilemap, self.player.pos[0], self.player.pos[1]) == '11;16'):
                                     # Third Level
                                     self.load_level("level3.json", 16, 113, True)
                                 if (self.player.currentTilePos(self.tilemap, self.player.pos[0], self.player.pos[1]) == '13;16'):
                                     # Fourth Level
-                                    self.load_level("level4.json", 50, 50, True)
+                                    self.load_level("level4.json", 283.0, 49.6, True)
                                 if (self.player.currentTilePos(self.tilemap, self.player.pos[0], self.player.pos[1]) == '15;16'):
                                     # Fifth Level
-                                    self.load_level("level5.json", 50, 50, True)
+                                    self.load_level("level5.json", 144.5, 33, True)
                                 
 
                             # exits the level if interacting with an exitdoor thats NOT in hub.
