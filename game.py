@@ -54,7 +54,8 @@ class Game:
 
     def show_title_screen(self):
         while True:
-            self.surface.fill((174, 166, 145))
+            self.backgroundimage = pygame.image.load('data/background/titlebg.png')
+            self.surface.blit(self.backgroundimage, (0, 0))
 
             start_time = pygame.time.get_ticks()
             fade_surface = pygame.Surface(self.screen.get_size()).convert()
@@ -66,7 +67,7 @@ class Game:
             title_text = self.titlefont.render(title_contain, True, (78, 63, 42))
             start_text = self.startfont.render(start_contain, True, (78, 63, 42))
             titlerect = title_text.get_rect(center=(160, 140))
-            startrect = start_text.get_rect(center=(160, 240))
+            startrect = start_text.get_rect(center=(160, 180))
             self.surface.blit(title_text, titlerect)
             self.surface.blit(start_text, startrect)
 
@@ -95,14 +96,12 @@ class Game:
                             pygame.display.update()
                         self.show_controls()
                         return
-
-                        
-
             self.clock.tick(60)
         
     def show_controls(self):
         while True:
-            self.surface.fill((174, 166, 145))
+            self.backgroundimage = pygame.image.load('data/background/titlebg.png')
+            self.surface.blit(self.backgroundimage, (0, 0))
  
             start_time = pygame.time.get_ticks()
             fade_surface = pygame.Surface(self.screen.get_size()).convert()
@@ -197,6 +196,29 @@ class Game:
             text_rect = hubText_surface.get_rect(center=(181, 109)) 
             self.surface.blit(hubText_surface, text_rect)
 
+    def pause(self):
+        while True:
+            self.backgroundimage = pygame.image.load('data/background/transparent.png')
+            self.surface.blit(self.backgroundimage, (0, 0))
+
+            pygame.draw.rect(self.surface, (255,255,255), (160-150 // 2, 144-50 // 2, 150, 50))
+
+            scaled = pygame.transform.scale(self.surface, (960, 864))
+            self.screen.blit(scaled, (0, 0))
+            pygame.display.flip()
+
+            
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                        sys.exit()
+                    if event.key == pygame.K_ESCAPE:
+                        self.surface.set_alpha(255)
+                        return
+            self.clock.tick(60)
+            
+
     def run(self):
 
         while True:
@@ -239,6 +261,10 @@ class Game:
                     sys.exit()
 
                 if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        self.pause()
+                        self.movement[0] = False
+                        self.movement[1] = False
                     if event.key == pygame.K_a or event.key == pygame.K_LEFT: # d is left, a is right
                         self.movement[0] = True
                     if event.key == pygame.K_d or event.key == pygame.K_RIGHT:
