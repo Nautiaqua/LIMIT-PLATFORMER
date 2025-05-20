@@ -227,7 +227,6 @@ class Game:
         if self.isHub:
             print("ITS THE HUB AREA")
         '''
-            
         if self.hubTextTimer > 0 and self.isHub:
             hubText_surface = self.hubFont.render(self.hubText, True, (0, 0, 0))
             hubText_surface.set_alpha(100)
