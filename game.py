@@ -6,11 +6,13 @@ import os
 from scripts.utils import load_image, load_images
 from scripts.entities import PhysicsEntity
 from scripts.tilemap import Tilemap
+from scripts.utils import load_image, load_images, load_animation_frames
+
 
 class Game:
     def __init__(self):
+        self.walk_left_frames = []
         pygame.init()
-
         pygame.display.set_caption("LimitJump!") # title for the window
         self.screen = pygame.display.set_mode((960, 864), vsync=1) # Initialize screen.
         self.surface = pygame.Surface((320, 288))
@@ -33,12 +35,18 @@ class Game:
             'door' : load_images('tiles/door'),
             'exitdoor': load_images('tiles/exitdoor'),
             'numbers': load_images('tiles/numbers'),
-            'player': load_image('player/player_base.png')
+            'player': load_image('player/player_base.png'),
+            'walk left': load_images('walk left'),
+            'walk right': load_images('walk right'),
+            'walk_left': load_animation_frames('walk left'),
+            'walk_right': load_animation_frames('walk right'),
+            'jump_right': load_animation_frames('jump right'),
+            'jump_left': load_animation_frames('jump left'),
         }
 
         # this part is for the jump popup thingymajigy
         self.font = pygame.font.SysFont('Arial', 20)
-        self.titlefont = pygame.Font('data/fonts/Pixellari.ttf', 40)
+        self.titlefont = pygame.font.Font('data/fonts/Pixellari.ttf', 40)
         self.startfont = pygame.font.SysFont('Arial', 15)
         self.startfont2 = pygame.font.SysFont('Arial', 25)
         self.popup_text = ''
@@ -52,6 +60,7 @@ class Game:
         self.load_level("hub.json", 32, 257)
         self.show_title_screen()
 
+    
     def show_title_screen(self):
         while True:
             self.surface.fill((174, 166, 145))
@@ -99,8 +108,9 @@ class Game:
                         
 
             self.clock.tick(60)
-        
+    
     def show_controls(self):
+        
         while True:
             self.surface.fill((174, 166, 145))
 
@@ -198,6 +208,7 @@ class Game:
             self.surface.blit(hubText_surface, text_rect)
 
     def run(self):
+        
         while True:
             self.deltatime = self.clock.tick(60) / 1000
             self.surface.fill((174, 166, 145)) # fill the screen with the chosen color.
@@ -321,5 +332,6 @@ class Game:
 
             pygame.display.update()
 
+    
 
 Game().run()

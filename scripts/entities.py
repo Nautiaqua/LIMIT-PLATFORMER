@@ -14,6 +14,19 @@ class PhysicsEntity:
         self.canJump = False
         self.JumpsLeft = jumpamount
         self.die = False
+        self.anim_timer = 0
+        self.anim_index = 0
+        self.anim_speed = 0.18  # Lower = faster
+        self.facing_right = True
+        self.walk_right = self.game.assets['walk_right']
+        self.walk_left = self.game.assets['walk_left']
+        self.jump_right = self.game.assets['jump_right']
+        self.jump_left = self.game.assets['jump_left']
+        self.jump_phase = 0  # 0: looking up, 1: up, 2: falling, 3: landing
+        self.jump_anim_lock = 0  # Timer to hold the landing squish
+
+
+
 
         self.coyote_timer = 0
         self.coyote_time_max = 0.2 # THIS IS IN SECONDS.
@@ -25,6 +38,40 @@ class PhysicsEntity:
         return pygame.Rect(self.pos[0], self.pos[1], self.size[0], self.size[1])
 
     def update(self, dt, tilemap, movement=(0, 0),):
+        # Handle vertical motion for jump phases
+        if not self.collisions['down']:  # In the air
+            if self.velocity[1] < -0.5:  # Going up
+                self.jump_phase = 1
+            elif self.velocity[1] > 0.5:  # Falling
+                self.jump_phase = 2
+        else:
+            if self.jump_phase in [1, 2]:  # Just landed
+                self.jump_phase = 3
+                self.jump_anim_lock = 0.05  # Show landing frame for 0.15 sec
+            elif self.jump_anim_lock > 0:
+                self.jump_anim_lock -= dt
+                if self.jump_anim_lock <= 0:
+                    self.jump_phase = 0  # Reset to idle
+
+        self.is_jumping = self.jump_phase in [1, 2, 3]
+
+
+
+        # Determine direction
+        if movement[0] > 0:
+            self.facing_right = True
+        elif movement[0] < 0:
+            self.facing_right = False
+
+        # Animation frame control
+        if movement[0] != 0:  # Only animate when moving
+            self.anim_timer += dt
+            if self.anim_timer >= self.anim_speed:
+                self.anim_timer = 0
+                self.anim_index = (self.anim_index + 1) % len(self.walk_right)
+        else:
+            self.anim_index = 0  # Reset to idle frame when not moving
+
         self.collisions = {'up': False, 'down': False, 'right': False, 'left': False}
         self.dt = dt
 
@@ -87,5 +134,19 @@ class PhysicsEntity:
         return cTilePos
 
 
-    def render(self, surfc): #surfc is surface
-        surfc.blit(self.game.assets['player'], self.pos)
+    def render(self, surfc):
+        if self.is_jumping:
+            if self.facing_right:
+                current_image = self.jump_right[self.jump_phase]
+            else:
+                current_image = self.jump_left[self.jump_phase]
+        else:
+            if self.facing_right:
+                current_image = self.walk_right[self.anim_index]
+            else:
+                current_image = self.walk_left[self.anim_index]
+
+        surfc.blit(current_image, self.pos)
+
+
+
