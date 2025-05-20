@@ -10,6 +10,7 @@ from scripts.tilemap import Tilemap
 class Game:
     def __init__(self):
         pygame.init()
+        pygame.mixer.init()
 
         pygame.display.set_caption("LimitJump!") # title for the window
         self.screen = pygame.display.set_mode((960, 864), vsync=1) # Initialize screen.
@@ -37,6 +38,14 @@ class Game:
             'player': load_image('player/player_base.png')
         }
 
+        # Sound effects
+        self.jumpsound = pygame.mixer.Sound('data/music/Jump 1.wav')
+        self.screentrans = pygame.mixer.Sound('data/music/screentrans.wav')
+        self.pausetune = pygame.mixer.Sound('data/music/pause.wav'); self.pausetune.set_volume(0.2)
+        self.doorwalk = pygame.mixer.Sound('data/music/doorwalk.wav')
+        self.deathsound = pygame.mixer.Sound('data/music/death.wav'); self.deathsound.set_volume(0.2)
+        self.musicplaying = False
+
         # this part is for the jump popup thingymajigy
         self.font = pygame.font.SysFont('Arial', 20)
         self.smallfont = pygame.font.SysFont('Arial', 10)
@@ -56,6 +65,10 @@ class Game:
         self.show_title_screen()
 
     def show_title_screen(self):
+        pygame.mixer.music.load('data/music/Three Red Hearts - Candy.ogg')
+        pygame.mixer.music.set_volume(0.05)
+        pygame.mixer.music.play(-1)  # Loop forever
+        
         while True:
             self.backgroundimage = pygame.image.load('data/background/titlebg.png')
             self.surface.blit(self.backgroundimage, (0, 0))
@@ -84,6 +97,7 @@ class Game:
                     sys.exit()
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
+                        self.screentrans.play()
                         while True:
                             now = pygame.time.get_ticks()
                             elapsed = now - start_time
@@ -127,6 +141,7 @@ class Game:
                     sys.exit()
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
+                        self.screentrans.play()
                         while True:
                             now = pygame.time.get_ticks()
                             elapsed = now - start_time
@@ -140,6 +155,7 @@ class Game:
                             self.screen.blit(fade_surface, (0, 0))
 
                             pygame.display.update()
+                        pygame.mixer.music.stop()
                         return
                         
 
@@ -165,7 +181,7 @@ class Game:
             pygame.display.update()
             self.clock.tick(60)
 
-    def load_level(self, levelName, spawnX, spawnY, transition = False):
+    def load_level(self, levelName, spawnX, spawnY, transition = False, respawning = False):
         if (transition):
             self.screen_wipe()
         self.tilemap.load(self.levelPath + levelName)
@@ -179,9 +195,17 @@ class Game:
         self.respawnX = spawnX
         self.respawnY = spawnY
         self.jumpsUsed = 0
+        if respawning == False:
+            self.musicplaying = False
 
     def hubappear(self):
         self.isHub = json.load(open(self.levelPath + self.currentLevel)).get("ishub", False)
+
+        if self.musicplaying == False and self.isHub:
+            pygame.mixer.music.load('data/music/Three Red Hearts - Puzzle Pieces.ogg')
+            pygame.mixer.music.set_volume(0.05)
+            pygame.mixer.music.play(-1)
+            self.musicplaying = True
 
         self.hubFont = pygame.font.SysFont('Arial', 12)
         self.hubText = 'this is your jump count.\ndo not let it run out!\nif it does, the level resets!\n               v'
@@ -200,6 +224,7 @@ class Game:
             self.surface.blit(hubText_surface, text_rect)
 
     def pause(self):
+        pygame.mixer.music.pause()
         while True:
             self.backgroundimage = pygame.image.load('data/background/transparent.png')
             self.surface.blit(self.backgroundimage, (0, 0))
@@ -236,14 +261,20 @@ class Game:
                         sys.exit()
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
+                        self.pausetune.play()
+                        pygame.mixer.music.unpause()
                         self.surface.set_alpha(255)
                         return
                     if self.isHub != True and event.key == pygame.K_r:
+                        self.screentrans.play()
                         self.load_level("hub.json", 32, 257, True)
                         return
             self.clock.tick(60)
 
     def levelcomplete(self):
+        pygame.mixer.music.load('data/music/stageclear.mp3')
+        pygame.mixer.music.set_volume(0.3)
+        pygame.mixer.music.play(-1)
         while True:
             self.surface.fill((174, 166, 145))
             pygame.draw.rect(self.surface, (53, 43, 29), (160-190 // 2, 144-35 // 2, 190, 35))
@@ -277,6 +308,7 @@ class Game:
                         sys.exit()
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
+                        self.screentrans.play()
                         return
             self.clock.tick(60)
 
@@ -302,7 +334,11 @@ class Game:
             self.player.update(self.deltatime, self.tilemap, (self.movement[1] - self.movement[0], 0))  #moves player left and right
             self.player.render(self.surface) #renders player
 
-            
+            if not self.musicplaying and not self.isHub:
+                pygame.mixer.music.load('data/music/Three Red Hearts - Rabbit Town.ogg')
+                pygame.mixer.music.set_volume(0.05)
+                pygame.mixer.music.play(-1)
+                self.musicplaying = True
 
             # renders the jump counter
             if self.popup_timer > 0:
@@ -314,7 +350,8 @@ class Game:
 
             if (self.player.die == True):
                 print("DYING")
-                self.load_level(self.currentLevel, self.respawnX, self.respawnY)
+                self.deathsound.play()
+                self.load_level(self.currentLevel, self.respawnX, self.respawnY, False, True)
                 self.player.die = False
                 if (self.reset_timer == 0):
                     self.reset_timer = 60
@@ -336,6 +373,7 @@ class Game:
 
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
+                        self.pausetune.play()
                         self.pause()
                         self.movement[0] = False
                         self.movement[1] = False
@@ -346,12 +384,14 @@ class Game:
                     if event.key == pygame.K_SPACE:
                         # basically enables infinite jumps if jumps is set to 255
                         if (self.player.canJump == True and self.player.JumpsLeft == 255):
+                            self.jumpsound.play()
                             self.player.velocity[1] = -3
                             self.player.canJump = False
                             self.player.coyote_timer = 0
 
                         # now THIS is the code for the name of the game
                         if (self.player.canJump == True and self.player.JumpsLeft > 0):
+                            self.jumpsound.play()
                             self.player.velocity[1] = -3
                             self.player.canJump = False
                             self.player.JumpsLeft -= 1
@@ -362,16 +402,19 @@ class Game:
                             self.load_level(self.currentLevel, self.respawnX, self.respawnY)
                         if (self.player.JumpsLeft == 0):
                             self.noJumps = True
-                    if event.key == pygame.K_r:
-                        self.load_level(self.currentLevel, self.respawnX, self.respawnY)
+                    if event.key == pygame.K_r and not self.isHub:
+                        self.deathsound.play()
+                        if (self.reset_timer == 0):
+                            self.reset_timer = 60
+                        self.load_level(self.currentLevel, self.respawnX, self.respawnY, False, True)
 
                     # Interaction for loading levels
                     if event.key == pygame.K_z or event.key == pygame.K_l:
                         cTile = self.player.currentTileGet(self.tilemap, self.player.pos[0], self.player.pos[1])
                         if (cTile != None):
                             print(cTile['type'])
-
                             if (self.isHub == True and cTile['type'] == 'exitdoor'):
+                                self.doorwalk.play()
                                 print("level chosen")
 
                                 # The game will crash if the level doesn't exist.
@@ -397,6 +440,7 @@ class Game:
 
                             # exits the level if interacting with an exitdoor thats NOT in hub.
                             if (self.isHub == False and cTile['type'] == 'exitdoor'):
+                                self.doorwalk.play()
                                 print("LEVEL EXIT")
                                 self.screen_wipe()
                                 self.levelcomplete()
