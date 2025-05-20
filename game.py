@@ -45,6 +45,7 @@ class Game:
         self.startfont2 = pygame.font.SysFont('Arial', 25)
         self.popup_text = ''
         self.popup_timer = 120 #this is based on frames.
+        self.reset_timer = 0
 
         self.tilemap = Tilemap(self, tile_size = 16) # for the sake of clarity.
 
@@ -315,6 +316,18 @@ class Game:
                 print("DYING")
                 self.load_level(self.currentLevel, self.respawnX, self.respawnY)
                 self.player.die = False
+                if (self.reset_timer == 0):
+                    self.reset_timer = 60
+
+            
+            # death / reset text
+            if self.reset_timer > 0:
+                resettxt = self.font.render("Level Reset!", True, (0,0,0))
+                resettxt.set_alpha(100)
+                resetrect = resettxt.get_rect(center=(163, 30))
+                self.surface.blit(resettxt, resetrect)
+                self.reset_timer -= 0.5
+                    
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT: # quits game, duh
@@ -387,6 +400,11 @@ class Game:
                                 print("LEVEL EXIT")
                                 self.screen_wipe()
                                 self.levelcomplete()
+
+                                # THIS LINE FIXES SUCH A SPECIFIC BUG LMAO
+                                self.movement[0] = False
+                                self.movement[1] = False
+
                                 self.load_level("hub.json", 32, 257, True)
 
                     # debugger controls. these keybinds are here to help for debugging the game.
